@@ -1,0 +1,176 @@
+version: '3.8'
+
+services:
+  # MongoDB - Base de datos principal para documentos DID
+  mongodb:
+    image: mongo:7.0
+    container_name: dids_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: dids_db
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - dids_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # PostgreSQL - Base de datos para notificaciones en tiempo real
+  postgresql:
+    image: postgres:15
+    container_name: dids_postgresql
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dids_realtime
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - dids_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # Redis - Cache y colas de mensajes
+  redis:
+    image: redis:7-alpine
+    container_name: dids_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - dids_network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  # Backend API
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.simple
+    container_name: dids_backend
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      NODE_ENV: development
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/dids_db?authSource=admin
+      POSTGRES_URI: postgresql://admin:password123@postgresql:5432/dids_realtime
+      REDIS_URI: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-here
+      SUPABASE_URL: http://supabase:8000
+      SUPABASE_ANON_KEY: your-supabase-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: your-supabase-service-role-key
+    depends_on:
+      - mongodb
+      - postgresql
+      - redis
+    networks:
+      - dids_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # MongoDB Express - Interfaz web para MongoDB
+  mongo-express:
+    image: mongo-express:latest
+    container_name: dids_mongo_express
+    restart: unless-stopped
+    ports:
+      - "8083:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password123@mongodb:27017/
+    depends_on:
+      - mongodb
+    networks:
+      - dids_network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  # pgAdmin - Interfaz web para PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: dids_pgadmin
+    restart: unless-stopped
+    ports:
+      - "8084:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@dids.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgresql
+    networks:
+      - dids_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # Supabase - Backend as a Service
+  supabase:
+    image: supabase/supabase-dev:latest
+    container_name: dids_supabase
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+      - "54324:5432"
+      - "54325:5432"
+    environment:
+      POSTGRES_PASSWORD: your-super-secret-password
+      JWT_SECRET: your-super-secret-jwt-key-here
+      ANON_KEY: your-supabase-anon-key
+      SERVICE_ROLE_KEY: your-supabase-service-role-key
+    volumes:
+      - supabase_data:/var/lib/postgresql/data
+    networks:
+      - dids_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+volumes:
+  mongodb_data:
+  postgresql_data:
+  redis_data:
+  pgadmin_data:
+  supabase_data:
+
+networks:
+  dids_network:
+    driver: bridge

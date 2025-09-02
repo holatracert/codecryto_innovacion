@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# ========================================
+# 🔧 SCRIPT PARA CORREGIR INDEX.HTML
+# ========================================
+# Este script corrige el index.html y reinicia los servidores
+# ========================================
+
+echo "🔧 Corrigiendo index.html..."
+
+# Crear index.html correcto
+cat > build/web/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Sistema DIDs - Decentralized Identifiers">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Sistema DIDs">
+
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Sistema DIDs</title>
+  <link rel="manifest" href="manifest.json">
+
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    const serviceWorkerVersion = null;
+  </script>
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter.js" defer></script>
+</head>
+<body>
+  <script>
+    window.addEventListener('load', function(ev) {
+      // Download main.dart.js
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+EOF
+
+echo "✅ index.html corregido"
+echo "🔄 Reiniciando servidores..."
+
+# Volver al directorio raíz y reiniciar servidores
+cd /var/www/html/dids
+./serve-flutter-web.sh

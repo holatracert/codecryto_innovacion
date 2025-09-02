@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Flutter API Connection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Conexión Flutter - Backend API</h1>
+    
+    <div class="test-section">
+        <h3>1. Test de Conectividad Básica</h3>
+        <button onclick="testBasicConnection()">Probar Conexión Básica</button>
+        <div id="basic-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test de API DIDs (Simulando Flutter)</h3>
+        <button onclick="testDidsAPI()">Probar API DIDs</button>
+        <div id="dids-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Test de Headers y CORS</h3>
+        <button onclick="testCORS()">Probar CORS Completo</button>
+        <div id="cors-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Test de Errores de Red</h3>
+        <button onclick="testNetworkErrors()">Probar Errores de Red</button>
+        <div id="network-result"></div>
+    </div>
+
+    <script>
+        async function testBasicConnection() {
+            const resultDiv = document.getElementById('basic-result');
+            resultDiv.innerHTML = '🔄 Probando conexión básica...';
+            
+            try {
+                const response = await fetch('http://localhost:3002/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Conexión Básica Exitosa!</h4>
+                            <p><strong>Status:</strong> ${data.status}</p>
+                            <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+                            <p><strong>MongoDB:</strong> ${data.services.mongodb}</p>
+                            <p><strong>PostgreSQL:</strong> ${data.services.postgresql}</p>
+                            <p><strong>Redis:</strong> ${data.services.redis}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error"><h4>❌ Error HTTP: ${response.status}</h4></div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Error de Conexión</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>Esto indica un problema de CORS o conectividad</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testDidsAPI() {
+            const resultDiv = document.getElementById('dids-result');
+            resultDiv.innerHTML = '🔄 Probando API DIDs...';
+            
+            try {
+                // Simular exactamente lo que hace Flutter
+                const response = await fetch('http://localhost:3002/api/dids', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer your-api-key',
+                    },
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ API DIDs Funcionando!</h4>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Datos:</strong></p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    const errorText = await response.text();
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Error en API DIDs: ${response.status}</h4>
+                            <p><strong>Respuesta:</strong> ${errorText}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Error de Conexión a API DIDs</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testCORS() {
+            const resultDiv = document.getElementById('cors-result');
+            resultDiv.innerHTML = '🔄 Probando CORS completo...';
+            
+            try {
+                // Test OPTIONS request (preflight)
+                const optionsResponse = await fetch('http://localhost:3002/health', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'http://localhost:8085',
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'Content-Type,Authorization',
+                    },
+                });
+                
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': optionsResponse.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': optionsResponse.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': optionsResponse.headers.get('Access-Control-Allow-Headers'),
+                };
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h4>✅ CORS Configurado Correctamente!</h4>
+                        <p><strong>Status:</strong> ${optionsResponse.status}</p>
+                        <p><strong>Headers CORS:</strong></p>
+                        <pre>${JSON.stringify(corsHeaders, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Error en Test CORS</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testNetworkErrors() {
+            const resultDiv = document.getElementById('network-result');
+            resultDiv.innerHTML = '🔄 Probando errores de red...';
+            
+            try {
+                // Test con URL incorrecta
+                const response = await fetch('http://localhost:3002/api/nonexistent', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                if (response.status === 404) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Manejo de Errores Funcionando!</h4>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p>El backend está manejando correctamente las rutas inexistentes</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error"><h4>❌ Status inesperado: ${response.status}</h4></div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Error de Red</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

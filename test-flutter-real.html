@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Flutter Real Connection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 20px; border: 2px solid #e9ecef; border-radius: 8px; }
+        .success { border-color: #28a745; background-color: #d4edda; }
+        .error { border-color: #dc3545; background-color: #f8d7da; }
+        .warning { border-color: #ffc107; background-color: #fff3cd; }
+        button { padding: 12px 24px; margin: 8px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        pre { background-color: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; border: 1px solid #e9ecef; }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .status.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test de Conexión Real Flutter - Backend</h1>
+        <p>Este test simula exactamente lo que hace Flutter para conectarse al backend.</p>
+        
+        <div class="test-section">
+            <h3>🚀 Test 1: Conexión Básica al Backend</h3>
+            <p>Verifica si Flutter puede conectarse al endpoint de salud del backend.</p>
+            <button onclick="testBasicConnection()">Probar Conexión Básica</button>
+            <div id="basic-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔑 Test 2: API DIDs con Autenticación</h3>
+            <p>Simula exactamente la petición que hace Flutter al obtener DIDs.</p>
+            <button onclick="testDidsWithAuth()">Probar API DIDs con Auth</button>
+            <div id="dids-auth-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 Test 3: CORS desde Flutter Web</h3>
+            <p>Verifica si CORS funciona desde los puertos de Flutter.</p>
+            <button onclick="testCORSFromFlutter()">Probar CORS desde Flutter</button>
+            <div id="cors-flutter-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📱 Test 4: Simulación Completa de Flutter</h3>
+            <p>Simula el flujo completo que hace Flutter al iniciar.</p>
+            <button onclick="testCompleteFlutterFlow()">Probar Flujo Completo</button>
+            <div id="complete-flow-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Test 5: Diagnóstico de Errores</h3>
+            <p>Identifica exactamente dónde está fallando la conexión.</p>
+            <button onclick="diagnoseErrors()">Diagnosticar Errores</button>
+            <div id="diagnosis-result"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testBasicConnection() {
+            const resultDiv = document.getElementById('basic-result');
+            resultDiv.innerHTML = '<div class="status warning">🔄 Probando conexión básica...</div>';
+            
+            try {
+                console.log('🔍 Intentando conectar a http://localhost:3002/health...');
+                const response = await fetch('http://localhost:3002/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                console.log('📡 Respuesta recibida:', response.status, response.statusText);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            <h4>✅ Conexión Básica Exitosa!</h4>
+                            <p><strong>Status:</strong> ${data.status}</p>
+                            <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+                            <p><strong>MongoDB:</strong> ${data.services.mongodb}</p>
+                            <p><strong>PostgreSQL:</strong> ${data.services.postgresql}</p>
+                            <p><strong>Redis:</strong> ${data.services.redis}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status error">
+                            <h4>❌ Error HTTP: ${response.status}</h4>
+                            <p>El backend responde pero con error</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Error de conexión:', error);
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        <h4>❌ Error de Conexión</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>Esto indica un problema de CORS o conectividad</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function testDidsWithAuth() {
+            const resultDiv = document.getElementById('dids-auth-result');
+            resultDiv.innerHTML = '<div class="status warning">🔄 Probando API DIDs con autenticación...</div>';
+            
+            try {
+                console.log('🔍 Intentando conectar a http://localhost:3002/api/dids...');
+                const response = await fetch('http://localhost:3002/api/dids', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer your-api-key',
+                    },
+                });
+                
+                console.log('📡 Respuesta API DIDs:', response.status, response.statusText);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            <h4>✅ API DIDs Funcionando!</h4>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Datos recibidos:</strong></p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    const errorText = await response.text();
+                    resultDiv.innerHTML = `
+                        <div class="status error">
+                            <h4>❌ Error en API DIDs: ${response.status}</h4>
+                            <p><strong>Respuesta del servidor:</strong></p>
+                            <pre>${errorText}</pre>
+                            <p><strong>Posible problema:</strong> Middleware de autenticación bloqueando la petición</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Error API DIDs:', error);
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        <h4>❌ Error de Conexión a API DIDs</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Tipo de error:</strong> ${error.name}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function testCORSFromFlutter() {
+            const resultDiv = document.getElementById('cors-flutter-result');
+            resultDiv.innerHTML = '<div class="status warning">🔄 Probando CORS desde Flutter...</div>';
+            
+            try {
+                // Simular petición desde Flutter Web
+                const response = await fetch('http://localhost:3002/health', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'http://localhost:8085',
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'Content-Type,Authorization',
+                    },
+                });
+                
+                console.log('📡 Respuesta CORS:', response.status, response.statusText);
+                
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                };
+                
+                resultDiv.innerHTML = `
+                    <div class="status success">
+                        <h4>✅ CORS Configurado Correctamente!</h4>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Headers CORS:</strong></p>
+                        <pre>${JSON.stringify(corsHeaders, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('❌ Error CORS:', error);
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        <h4>❌ Error en Test CORS</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testCompleteFlutterFlow() {
+            const resultDiv = document.getElementById('complete-flow-result');
+            resultDiv.innerHTML = '<div class="status warning">🔄 Probando flujo completo de Flutter...</div>';
+            
+            try {
+                // Simular el flujo completo que hace Flutter
+                console.log('🔍 Paso 1: Verificando salud del backend...');
+                const healthResponse = await fetch('http://localhost:3002/health');
+                if (!healthResponse.ok) throw new Error('Backend no responde');
+                
+                console.log('🔍 Paso 2: Intentando obtener DIDs...');
+                const didsResponse = await fetch('http://localhost:3002/api/dids', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer your-api-key',
+                    },
+                });
+                
+                if (didsResponse.ok) {
+                    const data = await didsResponse.json();
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            <h4>✅ Flujo Completo Funcionando!</h4>
+                            <p>Flutter puede conectarse completamente al backend</p>
+                            <p><strong>DIDs obtenidos:</strong></p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status error">
+                            <h4>⚠️ Flujo Parcialmente Funcionando</h4>
+                            <p>✅ Backend responde (salud OK)</p>
+                            <p>❌ API DIDs falla: ${didsResponse.status}</p>
+                            <p><strong>Problema:</strong> Middleware de autenticación</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Error flujo completo:', error);
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        <h4>❌ Flujo Completo Fallando</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Problema:</strong> Conectividad básica al backend</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function diagnoseErrors() {
+            const resultDiv = document.getElementById('diagnosis-result');
+            resultDiv.innerHTML = '<div class="status warning">🔍 Diagnosticando errores...</div>';
+            
+            const diagnosis = [];
+            
+            try {
+                // Test 1: Conectividad básica
+                const healthResponse = await fetch('http://localhost:3002/health');
+                if (healthResponse.ok) {
+                    diagnosis.push('✅ Backend responde correctamente');
+                } else {
+                    diagnosis.push(`❌ Backend responde con error: ${healthResponse.status}`);
+                }
+            } catch (error) {
+                diagnosis.push(`❌ No se puede conectar al backend: ${error.message}`);
+            }
+            
+            try {
+                // Test 2: API DIDs
+                const didsResponse = await fetch('http://localhost:3002/api/dids', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer your-api-key',
+                    },
+                });
+                
+                if (didsResponse.ok) {
+                    diagnosis.push('✅ API DIDs funciona correctamente');
+                } else {
+                    diagnosis.push(`❌ API DIDs falla: ${didsResponse.status}`);
+                    if (didsResponse.status === 401) {
+                        diagnosis.push('🔑 Problema: Autenticación requerida');
+                    } else if (didsResponse.status === 403) {
+                        diagnosis.push('🚫 Problema: Acceso denegado');
+                    }
+                }
+            } catch (error) {
+                diagnosis.push(`❌ Error de red en API DIDs: ${error.message}`);
+            }
+            
+            // Test 3: CORS
+            try {
+                const corsResponse = await fetch('http://localhost:3002/health', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'http://localhost:8085',
+                        'Access-Control-Request-Method': 'GET',
+                    },
+                });
+                diagnosis.push('✅ CORS configurado correctamente');
+            } catch (error) {
+                diagnosis.push(`❌ Problema con CORS: ${error.message}`);
+            }
+            
+            resultDiv.innerHTML = `
+                <div class="status ${diagnosis.some(d => d.includes('❌')) ? 'error' : 'success'}">
+                    <h4>🔍 Diagnóstico Completo</h4>
+                    ${diagnosis.map(d => `<p>${d}</p>`).join('')}
+                    
+                    <h5>💡 Recomendaciones:</h5>
+                    ${diagnosis.some(d => d.includes('Autenticación')) ? 
+                        '<p>• El problema es el middleware de autenticación</p>' : ''}
+                    ${diagnosis.some(d => d.includes('CORS')) ? 
+                        '<p>• El problema es la configuración de CORS</p>' : ''}
+                    ${diagnosis.some(d => d.includes('conectar')) ? 
+                        '<p>• El problema es la conectividad de red</p>' : ''}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

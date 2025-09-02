@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Flutter Connection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .result { margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Conectividad Flutter</h1>
+    
+    <div class="test-section">
+        <h3>🔍 Test 1: Conectividad Básica</h3>
+        <button onclick="testBasicConnection()">Probar Conexión Básica</button>
+        <div id="basic-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>📱 Test 2: API DIDs (Simulando Flutter)</h3>
+        <button onclick="testDidsApi()">Probar API DIDs</button>
+        <div id="dids-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>🌐 Test 3: CORS desde Flutter</h3>
+        <button onclick="testCorsFromFlutter()">Probar CORS</button>
+        <div id="cors-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>📊 Estado del Sistema</h3>
+        <div id="system-status" class="result">
+            <strong>Servidor de Prueba:</strong> <span id="server-status">Verificando...</span><br>
+            <strong>Puerto 3003:</strong> <span id="port-status">Verificando...</span><br>
+            <strong>Puerto 8085:</strong> <span id="port-8085">Verificando...</span><br>
+            <strong>Puerto 8086:</strong> <span id="port-8086">Verificando...</span>
+        </div>
+    </div>
+
+    <script>
+        // Test 1: Conectividad básica
+        async function testBasicConnection() {
+            const resultDiv = document.getElementById('basic-result');
+            resultDiv.innerHTML = '🔄 Probando...';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:3003/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ <strong>CONEXIÓN EXITOSA</strong><br>
+                            Status: ${data.status}<br>
+                            Timestamp: ${data.timestamp}<br>
+                            Servicios: ${JSON.stringify(data.services)}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ❌ <strong>ERROR HTTP:</strong> ${response.status}<br>
+                            ${data.message || 'Sin mensaje de error'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ <strong>ERROR DE CONEXIÓN:</strong><br>
+                        ${error.message}<br>
+                        <small>Esto significa que Flutter NO puede conectarse al backend</small>
+                    </div>
+                `;
+            }
+        }
+        
+        // Test 2: API DIDs
+        async function testDidsApi() {
+            const resultDiv = document.getElementById('dids-result');
+            resultDiv.innerHTML = '🔄 Probando API DIDs...';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:3003/api/dids');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ <strong>API DIDs FUNCIONANDO</strong><br>
+                            DIDs encontrados: ${data.length}<br>
+                            Primer DID: ${JSON.stringify(data[0], null, 2)}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ❌ <strong>ERROR API DIDs:</strong> ${response.status}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ <strong>ERROR API DIDs:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Test 3: CORS desde Flutter
+        async function testCorsFromFlutter() {
+            const resultDiv = document.getElementById('cors-result');
+            resultDiv.innerHTML = '🔄 Probando CORS...';
+            
+            try {
+                // Simular exactamente lo que hace Flutter
+                const response = await fetch('http://127.0.0.1:3003/api/dids', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ <strong>CORS FUNCIONANDO</strong><br>
+                            Headers permitidos: ${response.headers.get('access-control-allow-origin') || 'No especificado'}<br>
+                            Métodos permitidos: ${response.headers.get('access-control-allow-methods') || 'No especificado'}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ❌ <strong>ERROR CORS:</strong> ${response.status}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ <strong>ERROR CORS:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Verificar estado del sistema
+        async function checkSystemStatus() {
+            // Verificar servidor de prueba
+            try {
+                const response = await fetch('http://127.0.0.1:3003/health');
+                document.getElementById('server-status').innerHTML = 
+                    response.ok ? '✅ Funcionando' : '❌ Error';
+            } catch (error) {
+                document.getElementById('server-status').innerHTML = '❌ No conecta';
+            }
+            
+            // Verificar puertos web
+            try {
+                const response = await fetch('http://localhost:8085');
+                document.getElementById('port-8085').innerHTML = 
+                    response.ok ? '✅ Funcionando' : '❌ Error';
+            } catch (error) {
+                document.getElementById('port-8085').innerHTML = '❌ No conecta';
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8086');
+                document.getElementById('port-8086').innerHTML = 
+                    response.ok ? '✅ Funcionando' : '❌ Error';
+            } catch (error) {
+                document.getElementById('port-8086').innerHTML = '❌ No conecta';
+            }
+            
+            document.getElementById('port-status').innerHTML = '✅ Puerto 3003';
+        }
+        
+        // Ejecutar verificación al cargar
+        window.onload = function() {
+            checkSystemStatus();
+            // Ejecutar test automático después de 2 segundos
+            setTimeout(testBasicConnection, 2000);
+        };
+    </script>
+</body>
+</html>
