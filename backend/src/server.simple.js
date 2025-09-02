@@ -17,7 +17,6 @@ const didRoutes = require('./routes/did.routes');
 
 // Importar middleware
 const { errorHandler } = require('./middleware/errorHandler');
-const { authMiddleware } = require('./middleware/auth');
 
 // Importar servicios
 const { initializeSupabase } = require('./services/supabase');
@@ -62,7 +61,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Rutas existentes
-app.use('/api/dids', authMiddleware, didRoutes);
+app.use('/api/dids', didRoutes);
 
 // Ruta de salud
 app.get('/health', (req, res) => {
@@ -75,6 +74,40 @@ app.get('/health', (req, res) => {
       redis: 'connected'
     }
   });
+});
+
+// Ruta de autenticación simple para desarrollo
+app.post('/api/auth/login', (req, res) => {
+  try {
+    const { deviceId, deviceName } = req.body;
+    
+    if (!deviceId || !deviceName) {
+      return res.status(400).json({
+        success: false,
+        message: 'deviceId y deviceName son requeridos'
+      });
+    }
+
+    // Crear un token simple para desarrollo
+    const token = Buffer.from(`${deviceId}:${deviceName}:${Date.now()}`).toString('base64');
+    
+    res.json({
+      success: true,
+      token: token,
+      user: {
+        id: deviceId,
+        device_id: deviceId,
+        device_name: deviceName,
+        role: 'user'
+      }
+    });
+  } catch (error) {
+    console.error('Error en login:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
 });
 
 // Middleware de manejo de errores

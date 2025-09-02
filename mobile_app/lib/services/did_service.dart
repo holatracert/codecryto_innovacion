@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/did_document.dart';
 
 class DidService {
-  // Usar el servidor de prueba sin autenticación para diagnóstico
+  // Usar el servidor de prueba sin autenticación para desarrollo
   static const String baseUrl = 'http://127.0.0.1:3003/api';
   static const String apiKey = 'your-api-key'; // En producción usar autenticación real
 

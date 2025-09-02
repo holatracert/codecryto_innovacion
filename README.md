@@ -85,3 +85,7 @@ npm run dev
 - **Tiempo real**: Socket.io, Redis, Supabase Realtime
 - **Notificaciones**: Supabase Push Notifications
 - **Contenedores**: Docker, Docker Compose
+
+## Fuentes 
+
+https://en.wikipedia.org/wiki/Decentralized_identifier https://en.wikipedia.org/wiki/AT_Protocol https://en.wikipedia.org/wiki/Digital_identity https://en.wikipedia.org/wiki/Self-sovereign_identity https://en.wikipedia.org/wiki/Decentralized_web https://en.wikipedia.org/wiki/EIDAS https://en.wikipedia.org/wiki/China_RealDID

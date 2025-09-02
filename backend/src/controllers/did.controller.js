@@ -5,14 +5,16 @@ const crypto = require('crypto');
 // Crear nuevo DID
 const createDid = async (req, res) => {
   try {
-    const { did, document, owner_address, signature, public_key_hash } = req.body;
-    const userId = req.user.id;
+    const { did, document, owner_address, signature, public_key_hash, deviceId, deviceName } = req.body;
+    
+    // Para desarrollo, usar deviceId si no hay usuario autenticado
+    const userId = req.user ? req.user.id : deviceId || 'anonymous';
 
     // Validar datos requeridos
-    if (!did || !document || !owner_address || !signature || !public_key_hash) {
+    if (!did || !document || !owner_address) {
       return res.status(400).json({
         success: false,
-        message: 'Todos los campos son requeridos'
+        message: 'did, document y owner_address son requeridos'
       });
     }
 
@@ -221,8 +223,10 @@ const getDidsByOwner = async (req, res) => {
 const approveDid = async (req, res) => {
   try {
     const { id } = req.params;
-    const { approved_by } = req.body;
-    const userId = req.user.id;
+    const { approved_by, deviceId, deviceName } = req.body;
+    
+    // Para desarrollo, usar deviceId si no hay usuario autenticado
+    const userId = req.user ? req.user.id : deviceId || 'anonymous';
 
     const didDocument = await DidDocument.findById(id);
     if (!didDocument) {
@@ -280,8 +284,10 @@ const approveDid = async (req, res) => {
 const rejectDid = async (req, res) => {
   try {
     const { id } = req.params;
-    const { reason } = req.body;
-    const userId = req.user.id;
+    const { reason, deviceId, deviceName } = req.body;
+    
+    // Para desarrollo, usar deviceId si no hay usuario autenticado
+    const userId = req.user ? req.user.id : deviceId || 'anonymous';
 
     const didDocument = await DidDocument.findById(id);
     if (!didDocument) {
